@@ -1,58 +1,52 @@
 /**
  * @license
- * Copyright Google Inc. All Rights Reserved.
+ * Copyright Google LLC All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * found in the LICENSE file at https://angular.dev/license
  */
 
-import * as testUtil from 'e2e_util/e2e_util';
+import {readFileSync} from 'fs';
+import {$, browser} from 'protractor';
+import {logging} from 'selenium-webdriver';
+import {RawSourceMap, SourceMapConsumer} from 'source-map';
+import {resolve} from 'path';
 
-var fs = require('fs');
-var sourceMap = require('source-map');
+describe('sourcemaps', function () {
+  const URL = '/';
 
-describe('sourcemaps', function() {
-  var URL = 'all/playground/src/sourcemap/index.html';
+  it('should map sources', async function () {
+    await browser.get(URL);
 
-  it('should map sources', function() {
-    browser.get(URL);
+    await $('error-app .errorButton').click();
 
-    $('error-app .errorButton').click();
+    const logs = await browser.manage().logs().get(logging.Type.BROWSER);
 
-    // TODO(tbosch): Bug in ChromeDriver: Need to execute at least one command
-    // so that the browser logs can be read out!
-    browser.executeScript('1+1');
-    browser.manage().logs().get('browser').then(function(logs) {
-      var errorLine: any /** TODO #9100 */ = null;
-      var errorColumn: any /** TODO #9100 */ = null;
-      logs.forEach(function(log) {
-        var match = /\.createError\s+\(.+:(\d+):(\d+)/m.exec(log.message);
-        if (match) {
-          errorLine = parseInt(match[1]);
-          errorColumn = parseInt(match[2]);
-        }
-      });
-
-      expect(errorLine).not.toBeNull();
-      expect(errorColumn).not.toBeNull();
-
-
-      const content =
-          fs.readFileSync('dist/all/playground/src/sourcemap/index.js').toString("utf8");
-      const marker = "//# sourceMappingURL=data:application/json;base64,";
-      const index = content.indexOf(marker);
-      const sourceMapData =
-          new Buffer(content.substring(index + marker.length), 'base64').toString("utf8");
-
-      var decoder = new sourceMap.SourceMapConsumer(JSON.parse(sourceMapData));
-
-      var originalPosition = decoder.originalPositionFor({line: errorLine, column: errorColumn});
-
-      var sourceCodeLines =
-          fs.readFileSync('modules/playground/src/sourcemap/index.ts', {encoding: 'UTF-8'})
-              .split('\n');
-      expect(sourceCodeLines[originalPosition.line - 1])
-          .toMatch(/throw new BaseException\(\'Sourcemap test\'\)/);
+    let errorLine: number | null = null;
+    let errorColumn: number | null = null;
+    logs.forEach(function (log: any) {
+      const match = log.message.match(/\.createError\s+\(.+:(\d+):(\d+)/m);
+      if (match) {
+        errorLine = parseInt(match[1]);
+        errorColumn = parseInt(match[2]);
+      }
     });
+
+    expect(errorLine).not.toBeNull();
+    expect(errorColumn).not.toBeNull();
+
+    const mapContent = readFileSync(
+      resolve('./modules/playground/src/sourcemap/bundles/main.js.map'),
+      'utf-8',
+    );
+    const decoder = await new SourceMapConsumer(JSON.parse(mapContent) as RawSourceMap);
+    const originalPosition = decoder.originalPositionFor({line: errorLine!, column: errorColumn!});
+    const sourceCodeLines = readFileSync(
+      resolve('./modules/playground/src/sourcemap/main.ts'),
+      'utf-8',
+    ).split('\n');
+    expect(sourceCodeLines[originalPosition.line! - 1]).toMatch(
+      /throw new Error\(\'Sourcemap test\'\)/,
+    );
   });
 });

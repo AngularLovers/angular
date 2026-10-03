@@ -1,13 +1,12 @@
 /**
  * @license
- * Copyright Google Inc. All Rights Reserved.
+ * Copyright Google LLC All Rights Reserved.
  *
  * Use of this source code is governed by an MIT-style license that can be
- * found in the LICENSE file at https://angular.io/license
+ * found in the LICENSE file at https://angular.dev/license
  */
 
 import {Injectable} from '@angular/core';
-import {ListWrapper, Predicate} from '@angular/core/src/facade/collection';
 
 // base model for RecordStore
 export abstract class KeyModel {
@@ -15,14 +14,22 @@ export abstract class KeyModel {
 }
 
 export class Todo extends KeyModel {
-  constructor(key: number, public title: string, public completed: boolean) { super(key); }
+  constructor(
+    key: number,
+    public title: string,
+    public completed: boolean,
+  ) {
+    super(key);
+  }
 }
 
 @Injectable()
 export class TodoFactory {
-  _uid: number = 0;
+  private _uid: number = 0;
 
-  nextUid(): number { return ++this._uid; }
+  nextUid(): number {
+    return ++this._uid;
+  }
 
   create(title: string, isCompleted: boolean): Todo {
     return new Todo(this.nextUid(), title, isCompleted);
@@ -34,22 +41,15 @@ export class TodoFactory {
 export class Store<T extends KeyModel> {
   list: T[] = [];
 
-  add(record: T): void { this.list.push(record); }
-
-  remove(record: T): void { this._spliceOut(record); }
-
-  removeBy(callback: Predicate<T>): void {
-    var records = this.list.filter(callback);
-    ListWrapper.removeAll(this.list, records);
+  add(record: T): void {
+    this.list.push(record);
   }
 
-  private _spliceOut(record: T) {
-    var i = this._indexFor(record);
-    if (i > -1) {
-      return ListWrapper.splice(this.list, i, 1)[0];
-    }
-    return null;
+  remove(record: T): void {
+    this.removeBy((item) => item === record);
   }
 
-  private _indexFor(record: T) { return this.list.indexOf(record); }
+  removeBy(callback: (record: T) => boolean): void {
+    this.list = this.list.filter((record) => !callback(record));
+  }
 }

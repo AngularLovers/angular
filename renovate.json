@@ -1,0 +1,59 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["github>angular/dev-infra//renovate-presets/default.json5"],
+  "baseBranchPatterns": ["main", "20.3.x"],
+  "ignoreDeps": [
+    "@types/selenium-webdriver",
+    "angular-1.5",
+    "angular-1.6",
+    "angular-1.7",
+    "angular-1.8",
+    "angular-mocks-1.5",
+    "angular-mocks-1.6",
+    "angular-mocks-1.7",
+    "angular-mocks-1.8",
+    "convert-source-map",
+    "selenium-webdriver",
+    "systemjs",
+    "vscode-jsonrpc",
+    "vscode-languageclient",
+    "vscode-languageserver",
+    "vscode-languageserver-protocol",
+    "vscode-languageserver-types"
+  ],
+  "packageRules": [
+    {
+      "matchFileNames": [
+        "modules/ssr-benchmarks/package.json",
+        "vscode-ng-language-service/integration/pre_apf_project/package.json",
+        "vscode-ng-language-service/integration/pre_standalone_project/package.json"
+      ],
+      "enabled": false
+    },
+    {
+      "matchManagers": ["bazel", "bazel-module", "bazelisk", "npm"],
+      "postUpgradeTasks": {
+        "commands": [
+          "git restore .npmrc",
+          "pnpm install --frozen-lockfile",
+          "pnpm bazel mod deps --lockfile_mode=update",
+          "pnpm bazel run //.github/actions/deploy-docs-site:main",
+          "pnpm bazel run //packages/common:base_currencies_file",
+          "pnpm bazel run //packages/common/locales:closure_locale_file",
+          "pnpm bazel run //packages/core:base_locale_file"
+        ],
+        "fileFilters": [
+          ".github/actions/deploy-docs-site/**/*",
+          "packages/**/*",
+          "MODULE.bazel.lock"
+        ],
+        "executionMode": "branch"
+      }
+    },
+    {
+      "enabled": false,
+      "matchDepNames": ["tailwindcss"],
+      "matchUpdateTypes": ["major"]
+    }
+  ]
+}

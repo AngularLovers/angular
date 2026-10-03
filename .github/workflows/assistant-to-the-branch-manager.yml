@@ -1,0 +1,21 @@
+name: DevInfra
+
+on:
+  push:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+
+# Declare default permissions as read only.
+permissions:
+  contents: read
+
+jobs:
+  assistant_to_the_branch_manager:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+        with:
+          persist-credentials: false
+      - uses: angular/dev-infra/github-actions/branch-manager@b7672ff60456719e6d9b0cc052abc73a7adc8df2
+        with:
+          angular-robot-key: ${{ secrets.ANGULAR_ROBOT_PRIVATE_KEY }}

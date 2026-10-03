@@ -1,25 +1,15 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
+    "strict": true,
+    "skipLibCheck": true,
     "declaration": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "module": "commonjs",
-    "moduleResolution": "node",
-    "outDir": "../dist/tools/",
-    "noImplicitAny": true,
-    "noFallthroughCasesInSwitch": true,
-    "paths": {
-    },
-    "rootDir": ".",
+    "esModuleInterop": true,
     "sourceMap": true,
-    "inlineSources": true,
-    "lib": ["es6", "dom"],
-    "target": "es5"
-  },
-  "exclude": [
-    "node_modules",
-    "typings-test",
-    "public_api_guard"
-  ]
+    "module": "esnext",
+    "moduleResolution": "node",
+    "types": ["node"],
+    "paths": {
+      "@angular/*": ["../packages/*/index"],
+    }
+  }
 }

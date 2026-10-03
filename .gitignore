@@ -1,49 +1,56 @@
 .DS_STORE
 
-# Don’t commit the following directories created by pub.
-packages
-pubspec.lock
-.pub
-.packages
-
 /dist/
-.buildlog
-node_modules
-bower_components
-
-# Or broccoli working directory
-tmp
-
-# Or the files created by dart2js.
-*.dart.js
-*.dart.precompiled.js
-*.js_
-*.js.deps
-*.js.map
+/bazel-out
+/integration/bazel/bazel-*
+*.log
+node_modules/
+modules/ssr-benchmarks/node_modules/
 
 # Include when developing application packages.
 pubspec.lock
 .c9
 .idea/
+.devcontainer/*
+!.devcontainer/README.md
+!.devcontainer/recommended-devcontainer.json
+!.devcontainer/recommended-Dockerfile
 .settings/
+.vscode/settings.json
 *.swo
+*.swp
 modules/.settings
-.vscode
 modules/.vscode
+.vimrc
+.nvimrc
 
 # Don't check in secret files
 *secret.js
 
-# Ignore npm debug log
+# Ignore npm/yarn debug log
 npm-debug.log
-
-/docs/bower_components/
+yarn-error.log
 
 # build-analytics
 .build-analytics
 
-# built dart payload tests
-/modules_dart/payload/**/build
-
 # rollup-test output
 /modules/rollup-test/dist/
+
+# User specific bazel settings
+.bazelrc.user
+
+# User specific ng-dev settings
+.ng-dev.user*
+
+.notes.md
+baseline.json
+
+# Ignore .history for the xyz.local-history VSCode extension
+.history
+
+# Husky
+.husky/_
+
+# Ignore cache created with the Angular CLI.
+.angular/
